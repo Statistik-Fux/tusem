@@ -18,17 +18,17 @@ body::before, body::after {
     background-size: contain; opacity: 0.15; filter: blur(0.5px);
     z-index: -1; pointer-events: none;
 }
-body::before { left: 15%; }
-body::after { right: 15%; }
+body::before { left: 15%; background-image: url('logo.png.jpg'); }
+body::after { right: 15%; background-image: url('logo.png.jpg'); }
 h1, h2 { text-align: center; margin-bottom: 15px; }
 #setup { background: rgba(255, 255, 255, 0.6); padding: 20px; border-radius: 12px;
     max-width: 500px; margin: 30px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-#opponent, #teamSelect { font-size: 1.1em; padding: 12px; width: 100%; margin-bottom: 20px;
+#opponent { font-size: 1.1em; padding: 12px; width: 100%; margin-bottom: 20px;
     border: 1px solid #ccc; border-radius: 8px; background-color: rgba(255,255,255,0.85);
     transition: border-color 0.3s, box-shadow 0.3s; color: black;
 }
-#opponent:focus, #teamSelect:focus { outline: none; border-color: #009688; box-shadow: 0 0 5px rgba(0,150,136,0.5); }
+#opponent:focus { outline: none; border-color: #009688; box-shadow: 0 0 5px rgba(0,150,136,0.5); }
 #player-selection { display: flex; gap: 10px; flex-wrap: nowrap; justify-content: space-between; }
 #player-selection .column { width: 48%; display: flex; flex-direction: column; gap: 8px; }
 #player-selection label { cursor: pointer; font-size: 1em; padding: 4px 0; }
@@ -74,10 +74,6 @@ th { background: #f0f0f0; }
 <main id="setup">
 <h1>Willkommen!</h1>
 <input type="text" id="opponent" placeholder="Gegner eingeben">
-<select id="teamSelect">
-    <option value="Fux2">Fux2</option>
-    <option value="FuxA">FuxA</option>
-</select>
 <section id="player-selection">
     <div class="column" id="col1"></div>
     <div class="column" id="col2"></div>
@@ -119,25 +115,14 @@ th { background: #f0f0f0; }
     const col1 = document.getElementById("col1");
     const col2 = document.getElementById("col2");
     const startBtn = document.getElementById("startBtn");
-    const teamSelect = document.getElementById("teamSelect");
     const addPlayerBtn = document.getElementById("addPlayerBtn");
     const newPlayerNameInput = document.getElementById("newPlayerName");
     const newPlayerCategorySelect = document.getElementById("newPlayerCategory");
 
     let currentOpponent = "";
 
-    const teams = {
-        Fux2: ["Julian Kusche","Gabriel Kofler","Lauro Pichiri","Felix Bernkop-Schnürch","Rune Laskowski","Lucas Mohr","Navi Yatawarage","William Reichardt","Justin Wollny","Jan Grüner","Dominik Kupiec","Lennart Steltner","Luca Thiel","Tim Schröder","Jonas Kofler","Till Braren","Pius Joppich","Norman Glamann","Tempo"],
-        FuxA: ["Leo Nowak","Simon Poppe","Fritz Parke","Fynn Paulicks","Filip Dominikovic","Leo Tautenhahn","Antonio D'Incecco","Noah Skei","Simon Sirot","Albert Schmidt","Gabor Zeuch","Christopher Losch","Davide Babini","Tillman Stark","Henning Lahuis","Ole Krake","Matteo Agistonelli","Tempo"]
-    };
-
-    const categories = {
-        Fux2: [...Array(8).fill("Rückraum"), ...Array(5).fill("Außen"), ...Array(3).fill("Kreis"), ...Array(2).fill("Torhüter"), ...Array(1).fill("Tempo")],
-        FuxA: [...Array(8).fill("Rückraum"), ...Array(4).fill("Außen"), ...Array(2).fill("Kreis"), ...Array(3).fill("Torhüter"), ...Array(1).fill("Tempo")]
-    };
-
-    let playerNames = [...teams.Fux2];
-    let playerCategories = [...categories.Fux2];
+    const playerNames = ["Julian Kusche","Gabriel Kofler","Lauro Pichiri","Felix Bernkop-Schnürch","Rune Laskowski","Lucas Mohr","Navi Yatawarage","William Reichardt","Justin Wollny","Jan Grüner","Dominik Kupiec","Lennart Steltner","Luca Thiel","Tim Schröder","Jonas Kofler","Till Braren","Pius Joppich","Norman Glamann","Tempo"];
+    const playerCategories = [...Array(8).fill("Rückraum"), ...Array(5).fill("Außen"), ...Array(3).fill("Kreis"), ...Array(2).fill("Torhüter"), ...Array(1).fill("Tempo")];
 
     const actionsPositive = [
         {key:"KM_pos",label:"KM"},
@@ -165,8 +150,6 @@ th { background: #f0f0f0; }
     let pressTimer, longPressActive, activeTouch;
 
     window.addEventListener("load", () => {
-        document.styleSheets[0].cssRules[1].style.backgroundImage = `url('logo.png.JPG?cb=${cb}')`;
-        document.styleSheets[0].cssRules[2].style.backgroundImage = `url('logo.png.JPG?cb=${cb}')`;
         renderPlayerCheckboxes();
     });
 
@@ -181,12 +164,6 @@ th { background: #f0f0f0; }
             (i < Math.ceil(playerNames.length / 2) ? col1 : col2).appendChild(label);
         });
     }
-
-    teamSelect.addEventListener("change", () => {
-        playerNames = [...teams[teamSelect.value]];
-        playerCategories = [...categories[teamSelect.value]];
-        renderPlayerCheckboxes();
-    });
 
     addPlayerBtn.addEventListener("click", () => {
         const n = newPlayerNameInput.value.trim();
@@ -314,7 +291,7 @@ th { background: #f0f0f0; }
         Object.values(playersData).forEach(p => Object.keys(p).forEach(k => sums[k] += p[k]));
 
         // Nicht-Torhüter für Summen
-        let fieldPlayers = Object.keys(playersData).filter(n => playerCategories[n-2] !== "Torhüter","Tempo");
+        let fieldPlayers = Object.keys(playersData).filter(n => playerCategories[n-1] !== "Torhüter" && playerCategories[n-1] !== "Tempo");
 
         // Summen nur aus Rückraum, Außen, Kreis
         let posTotalField = actionsPositive.reduce((s,a) => 
